@@ -24,6 +24,7 @@ while True:
 	mask = cv2.inRange(hsv, lower_range, upper_range)
 	mask = cv2.erode(mask, None, iterations= 2)
 	mask = cv2.dilate(mask, None, iterations=2)
+	mask = cv2.GaussianBlur(mask,(5,5),100)
 	res = cv2.bitwise_and(frame1, frame1, mask = mask)
 	
 	contour, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -70,14 +71,16 @@ while True:
 	
 
 	font = cv2.FONT_HERSHEY_SIMPLEX
-	if no_defects==1:
-		Top = tuple(contours[contours[:,:,1].argmin()][0])
+	Top = tuple(contours[contours[:,:,1].argmin()][0])
+	if Top>=(500,0) and Top<=(1280,500):
 
-		if cnt_area>=2000:
-			if area_ratio<12:
+		if no_defects==1:
+		
 
-				cv2.putText(frame1, '0', (0,50), font, 2, (255,255,255), 3, cv2.LINE_AA)
-				arr= []
+			if cnt_area>=2000:
+				if area_ratio<15:
+
+					cv2.putText(frame1, '0', (0,50), font, 2, (255,255,255), 3, cv2.LINE_AA)
 				# for i in range(len(arr)):
 				# 	if(arr[i]==Top):
 
@@ -86,23 +89,27 @@ while True:
 				# 	#print(i) 
 				# 	#arr.pop(i)
 
-			else:
+				else :
 				
-				cv2.putText(frame1, '1', (0,50), font, 2, (255,255,255), 3, cv2.LINE_AA)			
+					cv2.putText(frame1, '1', (0,50), font, 2, (255,255,255), 3, cv2.LINE_AA)
+					arr.append(tuple(contours[contours[:,:,1].argmin()][0]))			
+
+		elif no_defects==5:
+			cv2.putText(frame1, '5', (0,50), font, 2, (255,255,255), 3, cv2.LINE_AA)
+			arr=[]
+
 
 	
-
-	arr.append(tuple(contours[contours[:,:,1].argmin()][0]))
 	cv2.rectangle(frame1, (500,0), (1280,500), (0,0,255), 3)
 
 	for i in arr:
-		cv2.circle(frame1, i, 8, (255,0,0), -1)
+		cv2.circle(frame1, i, 8, (0,0,255), -1)
 	
 
 	#cv2.drawContours(res, [hull], -1, (255,0,0), 2)
 	
-	cv2.imshow("res", res)
-	cv2.imshow("mask", mask)
+	#cv2.imshow("res", res)
+	#cv2.imshow("mask", mask)
 	cv2.imshow("final", frame1)
 	k = cv2.waitKey(5) & 0xFF
 	if k == 27:
